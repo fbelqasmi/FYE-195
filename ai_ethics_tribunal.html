@@ -1,0 +1,239 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .tribunal { padding: 1.5rem 0; max-width: 720px; margin: 0 auto; }
+  .header { margin-bottom: 1.5rem; }
+  .header h2 { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .header p { font-size: 14px; color: var(--color-text-secondary); }
+  .tabs { display: flex; gap: 6px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .tab { padding: 6px 14px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 13px; cursor: pointer; background: var(--color-background-primary); color: var(--color-text-secondary); transition: all 0.15s; }
+  .tab.active { background: #E6F1FB; border-color: #378ADD; color: #0C447C; font-weight: 500; }
+  .scenario-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+  .scenario-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: #185FA5; background: #E6F1FB; display: inline-block; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; }
+  .scenario-title { font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+  .scenario-body { font-size: 14px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 1rem; }
+  .question-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; margin-bottom: 1rem; }
+  .question-box p { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 6px; font-weight: 500; }
+  .question-box ul { padding-left: 18px; }
+  .question-box li { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 2px; }
+  .verdict-section { border-top: 0.5px solid var(--color-border-tertiary); padding-top: 1rem; }
+  .verdict-label { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+  .verdict-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .verdict-btn { padding: 7px 16px; border-radius: var(--border-radius-md); font-size: 13px; cursor: pointer; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); transition: all 0.15s; }
+  .verdict-btn.approve { border-color: #3B6D11; color: #3B6D11; }
+  .verdict-btn.approve.selected { background: #EAF3DE; border-color: #639922; }
+  .verdict-btn.reject { border-color: #A32D2D; color: #A32D2D; }
+  .verdict-btn.reject.selected { background: #FCEBEB; border-color: #E24B4A; }
+  .verdict-btn.modify { border-color: #854F0B; color: #854F0B; }
+  .verdict-btn.modify.selected { background: #FAEEDA; border-color: #BA7517; }
+  .reasoning-area { width: 100%; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; font-size: 13px; font-family: var(--font-sans); color: var(--color-text-primary); background: var(--color-background-primary); resize: vertical; min-height: 80px; outline: none; }
+  .reasoning-area:focus { border-color: #378ADD; }
+  .submit-btn { margin-top: 10px; padding: 9px 20px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 13px; cursor: pointer; color: var(--color-text-primary); display: flex; align-items: center; gap: 6px; }
+  .submit-btn:hover { background: var(--color-background-secondary); }
+  .progress { display: flex; gap: 8px; margin-bottom: 1.5rem; align-items: center; }
+  .prog-step { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-secondary); }
+  .prog-step.done { background: #EAF3DE; border-color: #639922; color: #3B6D11; }
+  .prog-step.current { background: #E6F1FB; border-color: #378ADD; color: #185FA5; }
+  .prog-line { flex: 1; height: 0.5px; background: var(--color-border-tertiary); }
+  .summary-card { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem; }
+  .summary-title { font-size: 15px; font-weight: 500; margin-bottom: 12px; color: var(--color-text-primary); }
+  .summary-item { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .summary-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .verdict-badge { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+  .badge-approve { background: #EAF3DE; color: #3B6D11; }
+  .badge-reject { background: #FCEBEB; color: #A32D2D; }
+  .badge-modify { background: #FAEEDA; color: #854F0B; }
+  .badge-none { background: var(--color-background-primary); color: var(--color-text-tertiary); border: 0.5px solid var(--color-border-tertiary); }
+  .summary-scenario { font-size: 13px; color: var(--color-text-primary); font-weight: 500; }
+  .summary-reasoning { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+  .hidden { display: none; }
+  .discuss-btn { padding: 9px 20px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 13px; cursor: pointer; color: var(--color-text-primary); margin-top: 1rem; }
+  .discuss-btn:hover { background: var(--color-background-secondary); }
+</style>
+
+<div class="tribunal">
+  <h2 style="display:none">AI Ethics Tribunal — interactive classroom activity</h2>
+  <div class="header">
+    <h2>AI Ethics Tribunal</h2>
+    <p>You are on an ethics review panel. Read each scenario, deliberate, and deliver your verdict.</p>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <div id="scenario-view"></div>
+  <div id="summary-view" class="hidden"></div>
+</div>
+
+<script>
+const scenarios = [
+  {
+    id: 1,
+    tag: "Healthcare",
+    title: "The AI doctor that got it mostly right",
+    body: "A UAE hospital deploys an AI system to help diagnose skin cancer from photos. In trials, it was 91% accurate — better than the average junior doctor. The hospital decides to let the AI give diagnoses directly to patients via an app, without a doctor reviewing every case. A patient with a rare melanoma gets a 'low risk' result and delays seeking care for 6 months.",
+    questions: [
+      "Who is responsible — the hospital, the AI developers, or the patient?",
+      "Should AI ever make medical decisions without human review?",
+      "How does this connect to the UAE's goal of AI in healthcare?",
+    ]
+  },
+  {
+    id: 2,
+    tag: "Education",
+    title: "The AI that predicts dropouts",
+    body: "A university uses an AI system trained on historical data to predict which students are likely to drop out. The AI flags students based on grades, attendance, and socioeconomic background. Flagged students are automatically enrolled in extra support programs — but they are never told they were flagged, and the AI has been found to flag certain nationalities disproportionately.",
+    questions: [
+      "Is it ethical to act on AI predictions without telling the student?",
+      "What's the danger of bias in this system?",
+      "Should the UAE use AI like this in universities? Under what conditions?",
+    ]
+  },
+  {
+    id: 3,
+    tag: "Employment",
+    title: "The AI hiring filter",
+    body: "A major UAE company uses an AI tool to screen job applications. The tool was trained on 10 years of successful employee data. It now automatically rejects applications with certain patterns — including candidates from specific universities or with non-English CVs. The company claims it saves time and improves performance. A qualified Emirati candidate is rejected by the AI before any human sees her application.",
+    questions: [
+      "Is automated rejection without human review fair?",
+      "How might this conflict with the UAE's vision for AI equity?",
+      "What safeguards should be required?",
+    ]
+  },
+  {
+    id: 4,
+    tag: "Public Safety",
+    title: "The smart surveillance city",
+    body: "Dubai plans to install AI-powered cameras across the city that can identify individuals in real-time, detect 'suspicious behavior,' and automatically alert police. Supporters say it will reduce crime. Critics worry about privacy, false positives, and chilling effects on free expression. The system has been tested and has a 5% error rate — in a city of 3 million, that's 150,000 potential misidentifications.",
+    questions: [
+      "Is mass AI surveillance acceptable if it reduces crime?",
+      "How do we balance safety and privacy?",
+      "What oversight mechanisms should exist?",
+    ]
+  },
+  {
+    id: 5,
+    tag: "Content & Media",
+    title: "The AI news anchor",
+    body: "A UAE news channel creates a fully AI-generated news anchor that reads scripts, responds to breaking news, and is indistinguishable from a human presenter. The channel does not disclose that the anchor is AI. Millions of viewers watch the broadcast daily. During a crisis, the AI anchor delivers a report with a factual error that spreads widely before correction.",
+    questions: [
+      "Should audiences always be told when content is AI-generated?",
+      "Who is responsible for the error — the channel, the AI, the writers?",
+      "How should the UAE regulate AI in media?",
+    ]
+  }
+];
+
+let current = 0;
+let verdicts = {};
+let reasonings = {};
+
+function renderProgress() {
+  const p = document.getElementById('progress');
+  p.innerHTML = '';
+  scenarios.forEach((s, i) => {
+    if (i > 0) {
+      const line = document.createElement('div');
+      line.className = 'prog-line';
+      p.appendChild(line);
+    }
+    const step = document.createElement('div');
+    let cls = 'prog-step';
+    if (verdicts[s.id]) cls += ' done';
+    else if (i === current) cls += ' current';
+    step.className = cls;
+    step.textContent = verdicts[s.id] ? '✓' : (i + 1);
+    p.appendChild(step);
+  });
+  const line = document.createElement('div');
+  line.className = 'prog-line';
+  p.appendChild(line);
+  const fin = document.createElement('div');
+  fin.className = 'prog-step' + (current === scenarios.length ? ' current' : '');
+  fin.textContent = '★';
+  p.appendChild(fin);
+}
+
+function renderScenario() {
+  if (current >= scenarios.length) { renderSummary(); return; }
+  const s = scenarios[current];
+  const sv = document.getElementById('scenario-view');
+  const existing_verdict = verdicts[s.id] || null;
+  const existing_reason = reasonings[s.id] || '';
+
+  sv.innerHTML = `
+    <div class="scenario-card">
+      <span class="scenario-label">Case ${s.id} of ${scenarios.length} — ${s.tag}</span>
+      <div class="scenario-title">${s.title}</div>
+      <div class="scenario-body">${s.body}</div>
+      <div class="question-box">
+        <p>Discussion questions for your group:</p>
+        <ul>${s.questions.map(q => `<li>${q}</li>`).join('')}</ul>
+      </div>
+      <div class="verdict-section">
+        <div class="verdict-label">Your panel's verdict:</div>
+        <div class="verdict-buttons">
+          <button type="button" class="verdict-btn approve ${existing_verdict === 'approve' ? 'selected' : ''}" onclick="setVerdict('approve')">Approve the AI use</button>
+          <button type="button" class="verdict-btn modify ${existing_verdict === 'modify' ? 'selected' : ''}" onclick="setVerdict('modify')">Approve with conditions</button>
+          <button type="button" class="verdict-btn reject ${existing_verdict === 'reject' ? 'selected' : ''}" onclick="setVerdict('reject')">Reject — too risky</button>
+        </div>
+        <textarea class="reasoning-area" id="reasoning" placeholder="Summarise your group's reasoning in 2–3 sentences...">${existing_reason}</textarea>
+        <button type="button" class="submit-btn" onclick="submitVerdict()">Next case ↗</button>
+      </div>
+    </div>
+  `;
+  renderProgress();
+}
+
+function setVerdict(v) {
+  const s = scenarios[current];
+  verdicts[s.id] = v;
+  document.querySelectorAll('.verdict-btn').forEach(b => {
+    b.classList.remove('selected');
+    if (b.classList.contains(v)) b.classList.add('selected');
+  });
+}
+
+function submitVerdict() {
+  const s = scenarios[current];
+  const r = document.getElementById('reasoning').value.trim();
+  reasonings[s.id] = r;
+  if (!verdicts[s.id]) { verdicts[s.id] = 'none'; }
+  current++;
+  if (current >= scenarios.length) {
+    document.getElementById('summary-view').classList.remove('hidden');
+    document.getElementById('scenario-view').classList.add('hidden');
+    renderSummary();
+  } else {
+    renderScenario();
+  }
+}
+
+function renderSummary() {
+  const sv = document.getElementById('summary-view');
+  const badgeMap = { approve: ['badge-approve', 'Approved'], modify: ['badge-modify', 'Approved with conditions'], reject: ['badge-reject', 'Rejected'], none: ['badge-none', 'No verdict'] };
+  let items = scenarios.map(s => {
+    const v = verdicts[s.id] || 'none';
+    const [cls, label] = badgeMap[v];
+    const reason = reasonings[s.id] || 'No reasoning recorded.';
+    return `<div class="summary-item">
+      <span class="verdict-badge ${cls}">${label}</span>
+      <div>
+        <div class="summary-scenario">${s.tag}: ${s.title}</div>
+        <div class="summary-reasoning">${reason}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  sv.innerHTML = `
+    <div class="summary-card">
+      <div class="summary-title">Your panel's rulings</div>
+      ${items}
+    </div>
+    <button type="button" class="discuss-btn" onclick="sendPrompt('Based on our AI Ethics Tribunal verdicts, what are the most important ethical principles we applied? And how do our decisions connect to the UAE National AI Strategy 2031?')">Discuss our verdicts with Claude ↗</button>
+  `;
+  renderProgress();
+}
+
+renderScenario();
+</script>
